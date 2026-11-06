@@ -159,26 +159,31 @@ export function deducibleCells(grid, level = 2) {
  * 2 = auch fortgeschrittene. Gibt zurück, ob gelöst wurde und welche Stufe
  * nötig war.
  */
-export function logicSolve(start, maxLevel = 2) {
+export function logicSolve(start, maxLevel = 2, { minParallel = 1 } = {}) {
   const grid = start.slice();
   let levelUsed = 0;
   let steps = 0;
+  // narrow = es gab eine Runde, in der weniger als minParallel Felder
+  // gleichzeitig bestimmbar waren ("Nadel im Heuhaufen")
+  let narrow = false;
   for (;;) {
-    if (grid.every((v) => v !== EMPTY)) {
-      return { grid, solved: ruleViolations(grid).size === 0, contradiction: false, levelUsed, steps };
+    const empty = grid.filter((v) => v === EMPTY).length;
+    if (empty === 0) {
+      return { grid, solved: ruleViolations(grid).size === 0, contradiction: false, levelUsed, steps, narrow };
     }
     let progressed = false;
     for (let level = 1; level <= maxLevel && !progressed; level++) {
       const found = deducibleCells(grid, level);
-      if (found === null) return { grid, solved: false, contradiction: true, levelUsed, steps };
+      if (found === null) return { grid, solved: false, contradiction: true, levelUsed, steps, narrow };
       if (found.size > 0) {
+        if (found.size < Math.min(minParallel, empty)) narrow = true;
         for (const [i, v] of found) grid[i] = v;
         levelUsed = Math.max(levelUsed, level);
         steps++;
         progressed = true;
       }
     }
-    if (!progressed) return { grid, solved: false, contradiction: false, levelUsed, steps };
+    if (!progressed) return { grid, solved: false, contradiction: false, levelUsed, steps, narrow };
   }
 }
 
@@ -276,16 +281,17 @@ export function randomSolution(random = makeRandom()) {
 // Generator
 
 export const DIFFICULTIES = {
-  easy:   { label: 'Leicht', maxLevel: 1, minGivens: 46, requireAdvanced: false },
-  medium: { label: 'Mittel', maxLevel: 1, minGivens: 0,  requireAdvanced: false },
-  hard:   { label: 'Schwer', maxLevel: 2, minGivens: 0,  requireAdvanced: true },
+  easy:   { label: 'Leicht', maxLevel: 1, minGivens: 46, minParallel: 1, requireAdvanced: false },
+  medium: { label: 'Mittel', maxLevel: 1, minGivens: 0,  minParallel: 3, requireAdvanced: false },
+  hard:   { label: 'Schwer', maxLevel: 2, minGivens: 0,  minParallel: 1, requireAdvanced: true },
 };
 
 /**
  * Erzeugt ein Rätsel mit genau einer Lösung, das rein logisch lösbar ist.
  *  - leicht: nur einfache Regeln nötig, viele Vorgaben
- *  - mittel: nur einfache Regeln nötig, aber so wenige Vorgaben wie damit
- *    möglich (wie in der Zeitung, ca. 25)
+ *  - mittel: nur einfache Regeln nötig, wenige Vorgaben (wie in der Zeitung,
+ *    ca. 27). Zu jedem Zeitpunkt sind mindestens 3 Felder mit den einfachen
+ *    Regeln bestimmbar, man muss also nie das eine einzige Feld suchen.
  *  - schwer: braucht fortgeschrittene Schlüsse, möglichst wenige Vorgaben
  */
 export function generatePuzzle(difficulty = 'medium', random = makeRandom()) {
@@ -301,7 +307,8 @@ export function generatePuzzle(difficulty = 'medium', random = makeRandom()) {
     for (const idx of order) {
       if (givens <= cfg.minGivens) break;
       puzzle[idx] = EMPTY;
-      if (logicSolve(puzzle, cfg.maxLevel).solved) givens--;
+      const r = logicSolve(puzzle, cfg.maxLevel, { minParallel: cfg.minParallel });
+      if (r.solved && !r.narrow) givens--;
       else puzzle[idx] = solution[idx];
     }
 

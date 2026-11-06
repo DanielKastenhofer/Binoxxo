@@ -204,7 +204,10 @@ function hint() {
     setStatus('Es ist schon ein Fehler im Gitter. Drück auf „Prüfen“, um ihn zu finden.', 'bad');
     return;
   }
-  const found = deducibleCells(state.grid, 2);
+  // Leicht/Mittel: nur Felder, die mit den Grundregeln (Zweier, Lücke, Zählen)
+  // folgen. Schwer: auch Felder, die man nur über die ganze Zeile erschließt.
+  const level = DIFFICULTIES[state.difficulty]?.maxLevel ?? 2;
+  const found = deducibleCells(state.grid, level);
   if (!found || found.size === 0) {
     render();
     setStatus('Gerade lässt sich kein Feld sicher bestimmen.', 'info', 4000);

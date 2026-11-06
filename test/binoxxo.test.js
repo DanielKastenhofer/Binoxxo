@@ -148,12 +148,37 @@ test('Schwierigkeitsstufen unterscheiden sich in der Zahl der Vorgaben', () => {
   assert.ok(e > m && m > h, `leicht ${e} > mittel ${m} > schwer ${h}`);
 });
 
-test('Mittel hat wenige Vorgaben wie in der Zeitung (ca. 25)', () => {
+test('Mittel hat wenige Vorgaben wie in der Zeitung (ca. 27)', () => {
   const rnd = makeRandom(11);
   let sum = 0;
   for (let i = 0; i < 20; i++) sum += generatePuzzle('medium', rnd).givens;
   const avg = sum / 20;
-  assert.ok(avg >= 21 && avg <= 28, `Durchschnitt ${avg}`);
+  assert.ok(avg >= 21 && avg <= 30, `Durchschnitt ${avg}`);
+});
+
+test('Mittel: in jeder Runde sind mindestens 3 Felder mit Grundregeln bestimmbar', () => {
+  const rnd = makeRandom(21);
+  for (let i = 0; i < 15; i++) {
+    const { puzzle } = generatePuzzle('medium', rnd);
+    const r = logicSolve(puzzle, 1, { minParallel: 3 });
+    assert.ok(r.solved && !r.narrow);
+  }
+});
+
+test('Hinweis mit Grundregeln findet von jedem richtigen Zwischenstand aus ein Feld', () => {
+  const rnd = makeRandom(5);
+  const { puzzle, solution } = generatePuzzle('medium', rnd);
+  const g = puzzle.slice();
+  // zufällige richtige Felder eintragen, dann muss es immer einen Hinweis geben
+  for (let k = 0; k < 40; k++) {
+    const empty = g.map((v, i) => (v ? -1 : i)).filter((i) => i >= 0);
+    if (!empty.length) break;
+    const found = deducibleCells(g, 1);
+    assert.ok(found && found.size > 0);
+    for (const [i, v] of found) assert.equal(v, solution[i]);
+    const pick = empty[Math.floor(rnd() * empty.length)];
+    g[pick] = solution[pick];
+  }
 });
 
 test('Generator ist mit Seed reproduzierbar', () => {
