@@ -23,6 +23,8 @@ läuft offline und im Vollbild. Kein Konto, keine Werbung, kein Server.
 | **Zurück** | Macht den letzten Schritt rückgängig, beliebig oft bis zum Anfang. |
 | **Neustart** | Setzt das aktuelle Rätsel auf den Anfang zurück (mit Rückfrage). |
 | **Neues Rätsel** | Leicht, Mittel oder Schwer wählen. |
+| **Uhr oben** | Zeit für das aktuelle Rätsel. Läuft nur, solange die App offen ist. |
+| **☀️ / 🌙 oben rechts** | Wechselt zwischen hellem und dunklem Modus. Am Anfang richtet sich die App nach der iPhone-Einstellung. |
 
 Der Spielstand wird automatisch auf dem Gerät gespeichert.
 
@@ -75,7 +77,7 @@ Nach dem ersten Öffnen funktioniert die App auch ohne Internet (Flugmodus).
 
 ## Updates einspielen
 
-1. Dateien ändern, in `sw.js` die Zeile `const VERSION = 'binoxxo-v2'` hochzählen (`v2`, `v3`, …).
+1. Dateien ändern, in `sw.js` die Zeile `const VERSION = 'binoxxo-v2'` um eins hochzählen (`v3`, `v4`, …).
 2. Neu hochladen (bzw. `git push`).
 3. Auf dem iPhone die App einmal mit Internet öffnen, schließen und wieder öffnen.
    Der Spielstand bleibt dabei erhalten.
