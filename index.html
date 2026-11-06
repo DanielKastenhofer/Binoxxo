@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <title>Binoxxo</title>
+  <meta name="description" content="Binoxxo-Rätsel, unbegrenzt und offline">
+  <meta name="theme-color" content="#12161f">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Binoxxo">
+  <meta name="format-detection" content="telephone=no">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon-192.png" type="image/png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <main class="app">
+    <header class="top">
+      <h1>Binoxxo</h1>
+      <span id="level" class="level"></span>
+    </header>
+
+    <div id="board" class="board" role="grid" aria-label="Spielfeld"></div>
+
+    <p id="status" class="status" role="status" aria-live="polite"></p>
+
+    <nav class="controls">
+      <button id="btn-hint" class="btn btn-hint" type="button">
+        <span class="ico" aria-hidden="true">💡</span>Hinweis</button>
+      <button id="btn-check" class="btn" type="button">
+        <span class="ico" aria-hidden="true">✓</span>Prüfen</button>
+      <button id="btn-undo" class="btn" type="button">
+        <span class="ico" aria-hidden="true">↶</span>Zurück</button>
+      <button id="btn-reset" class="btn" type="button">
+        <span class="ico" aria-hidden="true">⟲</span>Neustart</button>
+      <button id="btn-new" class="btn btn-primary" type="button">
+        <span class="ico" aria-hidden="true">＋</span>Neues Rätsel</button>
+    </nav>
+  </main>
+
+  <!-- Dialoge -->
+  <div id="dlg-new" class="overlay" hidden>
+    <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="dlg-new-title">
+      <h2 id="dlg-new-title">Neues Rätsel</h2>
+      <p>Welche Schwierigkeit?</p>
+      <div class="choices">
+        <button class="btn btn-choice" data-difficulty="easy" type="button">Leicht</button>
+        <button class="btn btn-choice" data-difficulty="medium" type="button">Mittel</button>
+        <button class="btn btn-choice" data-difficulty="hard" type="button">Schwer</button>
+      </div>
+      <button class="btn btn-cancel" data-close type="button">Abbrechen</button>
+    </div>
+  </div>
+
+  <div id="dlg-reset" class="overlay" hidden>
+    <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="dlg-reset-title">
+      <h2 id="dlg-reset-title">Neu anfangen?</h2>
+      <p>Alle eigenen Einträge in diesem Rätsel werden gelöscht.</p>
+      <div class="row">
+        <button class="btn btn-cancel" data-close type="button">Abbrechen</button>
+        <button id="btn-reset-ok" class="btn btn-danger" type="button">Ja, neu anfangen</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="dlg-solved" class="overlay" hidden>
+    <div class="dialog dialog-success" role="dialog" aria-modal="true" aria-labelledby="dlg-solved-title">
+      <div class="trophy" aria-hidden="true">🎉</div>
+      <h2 id="dlg-solved-title">Geschafft!</h2>
+      <p id="solved-text">Das Rätsel ist gelöst.</p>
+      <div class="row">
+        <button class="btn btn-cancel" data-close type="button">Ansehen</button>
+        <button id="btn-solved-new" class="btn btn-primary" type="button">Neues Rätsel</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
