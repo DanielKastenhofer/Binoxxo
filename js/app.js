@@ -310,6 +310,22 @@ if (state) {
   setStatus('Tippe ein Feld an: leer → O → X → leer.', 'info', 6000);
 }
 
+// Offline-Betrieb und Updates: Bei jedem Öffnen wird nach einer neuen Version
+// gesucht. Ist eine da, lädt die App sich einmal neu (Spielstand bleibt).
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+  const hadController = !!navigator.serviceWorker.controller;
+  let reloading = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (!hadController || reloading) return;
+    reloading = true;
+    save();
+    location.reload();
+  });
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then((reg) => {
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') reg.update().catch(() => {});
+      });
+    }).catch(() => {});
+  });
 }
