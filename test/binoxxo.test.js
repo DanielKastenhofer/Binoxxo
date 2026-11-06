@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {
   N, EMPTY, O, X, VALID_LINES, ROWS, COLS, DIFFICULTIES,
   ruleViolations, isSolved, logicSolve, deducibleCells,
-  countSolutions, findSolutions, randomSolution, generatePuzzle, makeRandom,
+  countSolutions, findSolutions, randomSolution, generatePuzzle, makeRandom, explainCell,
 } from '../js/binoxxo.js';
 
 const parse = (s) => s.replace(/\s+/g, '').split('').map((c) => (c === 'O' ? O : c === 'X' ? X : EMPTY));
@@ -179,6 +179,25 @@ test('Hinweis mit Grundregeln findet von jedem richtigen Zwischenstand aus ein F
     const pick = empty[Math.floor(rnd() * empty.length)];
     g[pick] = solution[pick];
   }
+});
+
+test('Erklärung: jedes Grundregel-Feld bekommt eine passende Begründung', () => {
+  const rnd = makeRandom(8);
+  for (let n = 0; n < 10; n++) {
+    const { puzzle } = generatePuzzle('medium', rnd);
+    const found = deducibleCells(puzzle, 1);
+    for (const [i, v] of found) {
+      const e = explainCell(puzzle, i);
+      assert.ok(e, 'Begründung vorhanden');
+      assert.equal(e.value, v);
+      assert.match(e.text, /^(Zeile|Spalte) \d+/);
+    }
+  }
+  const g = new Array(N * N).fill(EMPTY);
+  g[1] = g[2] = X;
+  assert.equal(explainCell(g, 0).text, 'Zeile 1: daneben schon zwei X → hier O.');
+  g[20] = g[40] = O;
+  assert.equal(explainCell(g, 30).text, 'Spalte 1: Darüber und darunter O → hier X.');
 });
 
 test('Generator ist mit Seed reproduzierbar', () => {

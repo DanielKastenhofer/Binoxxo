@@ -108,6 +108,36 @@ function basicLine(vals) {
   return out;
 }
 
+/**
+ * Erklärt in Worten, warum ein leeres Feld mit den Grundregeln feststeht.
+ * Gibt { value, text } zurück oder null, wenn die Grundregeln nicht reichen.
+ */
+export function explainCell(grid, idx) {
+  const r = Math.floor(idx / N), c = idx % N;
+  const sym = (v) => (v === O ? 'O' : 'X');
+  const lines = [
+    { cells: ROWS[r], k: c, name: `Zeile ${r + 1}`, before: 'Links', after: 'rechts', side: 'daneben' },
+    { cells: COLS[c], k: r, name: `Spalte ${c + 1}`, before: 'Darüber', after: 'darunter', side: 'darüber oder darunter' },
+  ];
+  for (const { cells, k, name, before, after, side } of lines) {
+    const v = read(grid, cells);
+    if (v[k] !== EMPTY) return null;
+    for (const s of [O, X]) {
+      const res = `→ hier ${sym(other(s))}.`;
+      if ((k >= 2 && v[k - 1] === s && v[k - 2] === s) || (k + 2 < N && v[k + 1] === s && v[k + 2] === s)) {
+        return { value: other(s), text: `${name}: ${side} schon zwei ${sym(s)} ${res}` };
+      }
+      if (k >= 1 && k + 1 < N && v[k - 1] === s && v[k + 1] === s) {
+        return { value: other(s), text: `${name}: ${before} und ${after} ${sym(s)} ${res}` };
+      }
+      if (v.filter((x) => x === s).length === HALF) {
+        return { value: other(s), text: `${name} hat schon fünf ${sym(s)} → Rest ${sym(other(s))}.` };
+      }
+    }
+  }
+  return null;
+}
+
 function advancedLine(vals, fullOthers) {
   let common = null;
   for (const cand of VALID_LINES) {

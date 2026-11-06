@@ -1,4 +1,4 @@
-import { N, EMPTY, O, X, DIFFICULTIES, generatePuzzle, deducibleCells, isSolved } from './binoxxo.js';
+import { N, EMPTY, O, X, DIFFICULTIES, generatePuzzle, deducibleCells, explainCell, isSolved } from './binoxxo.js';
 
 const STORAGE_KEY = 'binoxxo-state-v1';
 
@@ -17,7 +17,7 @@ const timerEl = $('timer');
 // --- Spielstand -------------------------------------------------------------
 // state = { difficulty, puzzle[], solution[], grid[], history[[idx, vorher]], solved, elapsed (ms) }
 let state = load();
-let marks = { hint: new Set(), error: new Set() };
+let marks = { hint: new Set(), error: new Set(), example: -1 };
 
 function load() {
   try {
@@ -119,6 +119,7 @@ function render() {
     if (el._v !== v) { el.innerHTML = v ? SVG[v] : ''; el._v = v; }
     el.classList.toggle('given', puzzle[i] !== EMPTY);
     el.classList.toggle('hint', marks.hint.has(i));
+    el.classList.toggle('example', marks.example === i);
     el.classList.toggle('error', marks.error.has(i));
     el.setAttribute('aria-label', `Zeile ${Math.floor(i / N) + 1}, Spalte ${(i % N) + 1}: ${NAME[v]}`);
   }
@@ -138,7 +139,7 @@ function setStatus(text, kind = '', ms = 0) {
 }
 
 function clearMarks() {
-  marks = { hint: new Set(), error: new Set() };
+  marks = { hint: new Set(), error: new Set(), example: -1 };
 }
 
 // --- Spielzüge --------------------------------------------------------------
@@ -214,8 +215,16 @@ function hint() {
     return;
   }
   marks.hint = new Set(found.keys());
+  // Für ein Feld die Begründung in Worten zeigen (blau umrandet)
+  let example = null;
+  for (const i of found.keys()) {
+    const e = explainCell(state.grid, i);
+    if (e) { example = { i, ...e }; break; }
+  }
+  marks.example = example ? example.i : -1;
   render();
-  setStatus(found.size === 1 ? 'Das leuchtende Feld lässt sich jetzt sicher bestimmen.' : `Die ${found.size} leuchtenden Felder lassen sich jetzt sicher bestimmen.`, 'info');
+  const head = found.size === 1 ? 'Das leuchtende Feld steht fest.' : `${found.size} leuchtende Felder stehen fest.`;
+  setStatus(example ? `Blau umrandet: ${example.text}` : head, 'info');
 }
 
 function celebrate() {
