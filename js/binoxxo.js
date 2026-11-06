@@ -277,14 +277,15 @@ export function randomSolution(random = makeRandom()) {
 
 export const DIFFICULTIES = {
   easy:   { label: 'Leicht', maxLevel: 1, minGivens: 46, requireAdvanced: false },
-  medium: { label: 'Mittel', maxLevel: 1, minGivens: 32, requireAdvanced: false },
+  medium: { label: 'Mittel', maxLevel: 1, minGivens: 0,  requireAdvanced: false },
   hard:   { label: 'Schwer', maxLevel: 2, minGivens: 0,  requireAdvanced: true },
 };
 
 /**
  * Erzeugt ein Rätsel mit genau einer Lösung, das rein logisch lösbar ist.
  *  - leicht: nur einfache Regeln nötig, viele Vorgaben
- *  - mittel: nur einfache Regeln nötig, deutlich weniger Vorgaben
+ *  - mittel: nur einfache Regeln nötig, aber so wenige Vorgaben wie damit
+ *    möglich (wie in der Zeitung, ca. 25)
  *  - schwer: braucht fortgeschrittene Schlüsse, möglichst wenige Vorgaben
  */
 export function generatePuzzle(difficulty = 'medium', random = makeRandom()) {
