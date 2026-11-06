@@ -1,7 +1,7 @@
 // Service Worker: speichert die App beim ersten Aufruf, danach läuft sie offline.
 // Bei jeder Änderung an den Dateien VERSION erhöhen, damit das iPhone die neue
 // Version lädt.
-const VERSION = 'binoxxo-v2';
+const VERSION = 'binoxxo-v3';
 const FILES = [
   './',
   'index.html',
@@ -15,7 +15,9 @@ const FILES = [
 ];
 
 self.addEventListener('install', (e) => {
-  e.waitUntil(caches.open(VERSION).then((c) => c.addAll(FILES)).then(() => self.skipWaiting()));
+  e.waitUntil(caches.open(VERSION)
+      // cache: 'reload' umgeht den Browser-Zwischenspeicher, sonst landen alte Dateien im neuen Cache
+      .then((c) => c.addAll(FILES.map((f) => new Request(f, { cache: 'reload' })))).then(() => self.skipWaiting()));
 });
 
 self.addEventListener('activate', (e) => {
@@ -32,7 +34,7 @@ self.addEventListener('fetch', (e) => {
   e.respondWith(
     caches.open(VERSION).then(async (cache) => {
       const cached = await cache.match(e.request, { ignoreSearch: true });
-      const network = fetch(e.request)
+      const network = fetch(e.request, { cache: 'no-cache' })
         .then((res) => { if (res.ok) cache.put(e.request, res.clone()); return res; })
         .catch(() => cached);
       return cached || network;

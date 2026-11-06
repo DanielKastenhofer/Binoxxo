@@ -79,8 +79,9 @@ Nach dem ersten Öffnen funktioniert die App auch ohne Internet (Flugmodus).
 
 1. Dateien ändern, in `sw.js` die Zeile `const VERSION = 'binoxxo-v2'` um eins hochzählen (`v3`, `v4`, …).
 2. Neu hochladen (bzw. `git push`).
-3. Auf dem iPhone die App einmal mit Internet öffnen, schließen und wieder öffnen.
-   Der Spielstand bleibt dabei erhalten.
+3. Auf dem iPhone die App mit Internet öffnen. Sie findet das Update selbst und lädt sich
+   einmal kurz neu. Der Spielstand bleibt dabei erhalten. GitHub speichert Dateien bis zu
+   10 Minuten zwischen, direkt nach dem Hochladen kann es also etwas dauern.
 
 ---
 
