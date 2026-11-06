@@ -148,6 +148,14 @@ test('Schwierigkeitsstufen unterscheiden sich in der Zahl der Vorgaben', () => {
   assert.ok(e > m && m > h, `leicht ${e} > mittel ${m} > schwer ${h}`);
 });
 
+test('Mittel hat wenige Vorgaben wie in der Zeitung (ca. 25)', () => {
+  const rnd = makeRandom(11);
+  let sum = 0;
+  for (let i = 0; i < 20; i++) sum += generatePuzzle('medium', rnd).givens;
+  const avg = sum / 20;
+  assert.ok(avg >= 21 && avg <= 28, `Durchschnitt ${avg}`);
+});
+
 test('Generator ist mit Seed reproduzierbar', () => {
   const a = generatePuzzle('medium', makeRandom(99));
   const b = generatePuzzle('medium', makeRandom(99));

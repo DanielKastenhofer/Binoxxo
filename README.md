@@ -111,7 +111,7 @@ Der logische Löser kennt zwei Stufen:
 | Stufe | Nötige Logik | Vorgaben (ca.) |
 |---|---|---|
 | Leicht | nur einfache Regeln | 46 |
-| Mittel | nur einfache Regeln | 32 |
+| Mittel | nur einfache Regeln, aber so wenige Vorgaben wie damit möglich (wie in der Zeitung) | 20–29, meist 25 |
 | Schwer | braucht fortgeschrittene Schlüsse | 20–25 |
 
 Ein Rätsel wird in Sekundenbruchteilen direkt auf dem iPhone erzeugt.
