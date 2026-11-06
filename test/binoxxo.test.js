@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {
   N, EMPTY, O, X, VALID_LINES, ROWS, COLS, DIFFICULTIES,
   ruleViolations, isSolved, logicSolve, deducibleCells,
-  countSolutions, findSolutions, randomSolution, generatePuzzle, makeRandom,
+  countSolutions, findSolutions, randomSolution, generatePuzzle, makeRandom, explainCell,
 } from '../js/binoxxo.js';
 
 const parse = (s) => s.replace(/\s+/g, '').split('').map((c) => (c === 'O' ? O : c === 'X' ? X : EMPTY));
@@ -148,12 +148,56 @@ test('Schwierigkeitsstufen unterscheiden sich in der Zahl der Vorgaben', () => {
   assert.ok(e > m && m > h, `leicht ${e} > mittel ${m} > schwer ${h}`);
 });
 
-test('Mittel hat wenige Vorgaben wie in der Zeitung (ca. 25)', () => {
+test('Mittel hat wenige Vorgaben wie in der Zeitung (ca. 27)', () => {
   const rnd = makeRandom(11);
   let sum = 0;
   for (let i = 0; i < 20; i++) sum += generatePuzzle('medium', rnd).givens;
   const avg = sum / 20;
-  assert.ok(avg >= 21 && avg <= 28, `Durchschnitt ${avg}`);
+  assert.ok(avg >= 21 && avg <= 30, `Durchschnitt ${avg}`);
+});
+
+test('Mittel: in jeder Runde sind mindestens 3 Felder mit Grundregeln bestimmbar', () => {
+  const rnd = makeRandom(21);
+  for (let i = 0; i < 15; i++) {
+    const { puzzle } = generatePuzzle('medium', rnd);
+    const r = logicSolve(puzzle, 1, { minParallel: 3 });
+    assert.ok(r.solved && !r.narrow);
+  }
+});
+
+test('Hinweis mit Grundregeln findet von jedem richtigen Zwischenstand aus ein Feld', () => {
+  const rnd = makeRandom(5);
+  const { puzzle, solution } = generatePuzzle('medium', rnd);
+  const g = puzzle.slice();
+  // zufällige richtige Felder eintragen, dann muss es immer einen Hinweis geben
+  for (let k = 0; k < 40; k++) {
+    const empty = g.map((v, i) => (v ? -1 : i)).filter((i) => i >= 0);
+    if (!empty.length) break;
+    const found = deducibleCells(g, 1);
+    assert.ok(found && found.size > 0);
+    for (const [i, v] of found) assert.equal(v, solution[i]);
+    const pick = empty[Math.floor(rnd() * empty.length)];
+    g[pick] = solution[pick];
+  }
+});
+
+test('Erklärung: jedes Grundregel-Feld bekommt eine passende Begründung', () => {
+  const rnd = makeRandom(8);
+  for (let n = 0; n < 10; n++) {
+    const { puzzle } = generatePuzzle('medium', rnd);
+    const found = deducibleCells(puzzle, 1);
+    for (const [i, v] of found) {
+      const e = explainCell(puzzle, i);
+      assert.ok(e, 'Begründung vorhanden');
+      assert.equal(e.value, v);
+      assert.match(e.text, /^(Zeile|Spalte) \d+/);
+    }
+  }
+  const g = new Array(N * N).fill(EMPTY);
+  g[1] = g[2] = X;
+  assert.equal(explainCell(g, 0).text, 'Zeile 1: daneben schon zwei X → hier O.');
+  g[20] = g[40] = O;
+  assert.equal(explainCell(g, 30).text, 'Spalte 1: Darüber und darunter O → hier X.');
 });
 
 test('Generator ist mit Seed reproduzierbar', () => {

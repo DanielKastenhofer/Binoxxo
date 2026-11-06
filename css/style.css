@@ -167,6 +167,13 @@ button { font: inherit; color: inherit; touch-action: manipulation; }
   to   { box-shadow: 0 0 0 3px var(--hint-ring), 0 0 16px 7px rgba(255,255,255,.95); background: #ffffff; }
 }
 
+/* Das Feld, dessen Begründung unten steht */
+.cell.hint.example {
+  z-index: 3;
+  outline: 4px solid var(--accent);
+  outline-offset: -4px;
+}
+
 /* Fehler */
 .cell.error {
   background: var(--danger);

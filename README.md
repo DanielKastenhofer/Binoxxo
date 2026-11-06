@@ -104,14 +104,15 @@ Nach dem ersten Öffnen funktioniert die App auch ohne Internet (Flugmodus).
 Der logische Löser kennt zwei Stufen:
 
 - **Einfache Regeln:** zwei gleiche nebeneinander (`XX` → O daneben), Lücke (`X_X` → O dazwischen),
-  Zählen (5 X in einer Zeile → Rest O).
+  Zählen (5 X in einer Zeile → Rest O). Bei Leicht und Mittel zeigt der Hinweis nur Felder, die
+  mit diesen Regeln folgen.
 - **Fortgeschritten:** Für eine Zeile oder Spalte werden alle noch möglichen Belegungen
   betrachtet (inklusive „keine zwei gleichen Zeilen“). Was in allen gleich ist, steht fest.
 
 | Stufe | Nötige Logik | Vorgaben (ca.) |
 |---|---|---|
 | Leicht | nur einfache Regeln | 46 |
-| Mittel | nur einfache Regeln, aber so wenige Vorgaben wie damit möglich (wie in der Zeitung) | 20–29, meist 25 |
+| Mittel | nur einfache Regeln, wenige Vorgaben wie in der Zeitung. Es sind immer mindestens 3 Felder gleichzeitig bestimmbar, man muss also nie das eine einzige Feld suchen. | 21–31, meist 27 |
 | Schwer | braucht fortgeschrittene Schlüsse | 20–25 |
 
 Ein Rätsel wird in Sekundenbruchteilen direkt auf dem iPhone erzeugt.
