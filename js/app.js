@@ -12,9 +12,10 @@ const $ = (id) => document.getElementById(id);
 const boardEl = $('board');
 const statusEl = $('status');
 const levelEl = $('level');
+const timerEl = $('timer');
 
 // --- Spielstand -------------------------------------------------------------
-// state = { difficulty, puzzle[], solution[], grid[], history[[idx, vorher]], solved }
+// state = { difficulty, puzzle[], solution[], grid[], history[[idx, vorher]], solved, elapsed (ms) }
 let state = load();
 let marks = { hint: new Set(), error: new Set() };
 
@@ -27,17 +28,74 @@ function load() {
 }
 
 function save() {
+  commitClock();
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch { /* voll/privat */ }
 }
 
 function newGame(difficulty) {
   const { puzzle, solution } = generatePuzzle(difficulty);
-  state = { difficulty, puzzle, solution, grid: puzzle.slice(), history: [], solved: false };
+  state = { difficulty, puzzle, solution, grid: puzzle.slice(), history: [], solved: false, elapsed: 0 };
+  runStart = null;
+  startClock();
   clearMarks();
   save();
   render();
   setStatus('');
 }
+
+// --- Timer -----------------------------------------------------------------
+// Läuft nur, solange die App sichtbar ist und das Rätsel nicht gelöst ist.
+let runStart = null;
+
+const now = () => Date.now();
+function elapsedNow() {
+  return (state?.elapsed || 0) + (runStart ? now() - runStart : 0);
+}
+function commitClock() {
+  if (!state) return;
+  if (runStart) { const t = now(); state.elapsed = (state.elapsed || 0) + (t - runStart); runStart = t; }
+}
+function startClock() {
+  if (state && !state.solved && !runStart && document.visibilityState === 'visible') runStart = now();
+  renderTimer();
+}
+function stopClock() {
+  commitClock();
+  runStart = null;
+  renderTimer();
+}
+function formatTime(ms) {
+  const total = Math.floor(ms / 1000);
+  const h = Math.floor(total / 3600), m = Math.floor((total % 3600) / 60), sec = total % 60;
+  const ss = String(sec).padStart(2, '0');
+  return h ? `${h}:${String(m).padStart(2, '0')}:${ss}` : `${m}:${ss}`;
+}
+function renderTimer() {
+  if (!state) return;
+  timerEl.textContent = formatTime(elapsedNow());
+  timerEl.classList.toggle('done', !!state.solved);
+}
+setInterval(renderTimer, 500);
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') startClock();
+  else { stopClock(); save(); }
+});
+window.addEventListener('pagehide', () => save());
+
+// --- Farbschema ---------------------------------------------------------------
+const THEME_KEY = 'binoxxo-theme';
+function applyTheme(theme) {
+  document.documentElement.dataset.theme = theme;
+  $('btn-theme').textContent = theme === 'light' ? '🌙' : '☀️';
+  $('btn-theme').setAttribute('aria-label', theme === 'light' ? 'Dunkel einschalten' : 'Hell einschalten');
+  $('meta-theme').setAttribute('content', theme === 'light' ? '#eef1f6' : '#12161f');
+}
+$('btn-theme').addEventListener('click', () => {
+  const next = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light';
+  try { localStorage.setItem(THEME_KEY, next); } catch { /* egal */ }
+  applyTheme(next);
+});
+applyTheme(document.documentElement.dataset.theme === 'light' ? 'light' : 'dark');
 
 // --- Darstellung ------------------------------------------------------------
 const cells = [];
@@ -112,8 +170,11 @@ function afterChange() {
   setStatus('');
   const wasSolved = state.solved;
   state.solved = isSolved(state.grid);
+  if (state.solved && !wasSolved) stopClock();
+  if (!state.solved && wasSolved) startClock();
   save();
   render();
+  renderTimer();
   if (state.solved && !wasSolved) celebrate();
 }
 
@@ -156,7 +217,7 @@ function hint() {
 
 function celebrate() {
   const label = DIFFICULTIES[state.difficulty]?.label ?? '';
-  $('solved-text').textContent = `Du hast das Rätsel (${label}) richtig gelöst.`;
+  $('solved-text').textContent = `Du hast das Rätsel (${label}) in ${formatTime(state.elapsed || 0)} gelöst.`;
   openDialog('dlg-solved');
 }
 
@@ -243,6 +304,7 @@ document.addEventListener('gesturestart', (e) => e.preventDefault(), { passive: 
 buildBoard();
 if (state) {
   render();
+  startClock();
 } else {
   newGame('easy');
   setStatus('Tippe ein Feld an: leer → O → X → leer.', 'info', 6000);

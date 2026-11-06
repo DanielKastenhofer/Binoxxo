@@ -1,7 +1,7 @@
 // Service Worker: speichert die App beim ersten Aufruf, danach läuft sie offline.
 // Bei jeder Änderung an den Dateien VERSION erhöhen, damit das iPhone die neue
 // Version lädt.
-const VERSION = 'binoxxo-v1';
+const VERSION = 'binoxxo-v2';
 const FILES = [
   './',
   'index.html',

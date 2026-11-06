@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <title>Binoxxo</title>
   <meta name="description" content="Binoxxo-Rätsel, unbegrenzt und offline">
-  <meta name="theme-color" content="#12161f">
+  <meta name="theme-color" content="#12161f" id="meta-theme">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -15,12 +15,22 @@
   <link rel="icon" href="icons/icon-192.png" type="image/png">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
   <link rel="stylesheet" href="css/style.css">
+  <script>
+    // Farbschema vor dem ersten Zeichnen setzen (kein Aufblitzen)
+    (function () {
+      var t;
+      try { t = localStorage.getItem('binoxxo-theme'); } catch (e) {}
+      if (t !== 'light' && t !== 'dark') t = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+      document.documentElement.dataset.theme = t;
+    })();
+  </script>
 </head>
 <body>
   <main class="app">
     <header class="top">
-      <h1>Binoxxo</h1>
       <span id="level" class="level"></span>
+      <span id="timer" class="timer" aria-label="Zeit">0:00</span>
+      <button id="btn-theme" class="btn-theme" type="button" aria-label="Hell oder dunkel"></button>
     </header>
 
     <div id="board" class="board" role="grid" aria-label="Spielfeld"></div>
