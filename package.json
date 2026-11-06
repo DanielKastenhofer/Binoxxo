@@ -5,7 +5,7 @@
   "description": "Binoxxo-Rätsel als offline-fähige Web-App (PWA) fürs iPhone",
   "type": "module",
   "scripts": {
-    "test": "node --test test/",
+    "test": "node --test",
     "start": "python3 -m http.server 8080"
   }
 }
